@@ -1,0 +1,30 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE configuration files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.venv
+env/
+venv/
+
+# Build and distribution files
+build/
+dist/
+*.egg-info/
+
+# Kiro files
+.kiro/

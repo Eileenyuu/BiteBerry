@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BiteBerry Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .recipe {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        input, button {
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍓 BiteBerry - Test Page</h1>
+
+    <div>
+        <label>Budget: £<input type="number" id="budget" value="10" min="1" max="50"></label>
+        <label>Cooking Time <input type="number" id="cooking_time" value="30" min="5" max="50"> min</label>
+        <button onclick="getRecommendations()">Get Recommendation</button>
+    </div>
+
+    <h2>Recommended Meal: </h2>
+    <div id="results"></div>
+
+    <script>
+        async function getRecommendations() {
+            const budget = document.getElementById('budget').value;
+            const cooking_time = document.getElementById('cooking_time').value;
+
+            try {
+                const response = await fetch(`http://localhost:8000/recommend?max_budget=${budget}&max_cooking_time=${cooking_time}`, {
+                    method: 'GET'
+                })
+                const data = await response.json();
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (data.recommendations.length === 0) {
+                    resultsDiv.innerHTML = '<p>Sorry, No recommended meal</p>'
+                } else {
+                    data.recommendations.forEach(recipe => {
+                        resultsDiv.innerHTML += `
+                            <div class="recipe">
+                                <h3>${recipe.title}</h3>
+                                <p>${recipe.description}</p>
+                                <p>💰 Budget: £${recipe.budget} | 🕙 Cooking Time: ${recipe.cooking_time} mins</p>
+                            </div>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error)
+                alert('Fetch recommendation failed, please make sure backend is running')
+            }
+        }
+
+        getRecommendations()
+    </script>
+</body>
+</html>
