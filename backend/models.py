@@ -1,14 +1,42 @@
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime
+from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Enum
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum as PyEnum
 
 Base = declarative_base()
 
 # ============================================
+# Enums
+# ============================================
+
+class DietaryRestriction(PyEnum):
+    NONE = "none"
+    VEGETARIAN = "vegetarian"
+    VEGAN = "vegan"
+    GLUTEN_FREE = "gluten_free"
+    DAIRY_FREE = "dairy_free"
+    NUT_FREE = "nut_free"
+    KETO = "keto"
+    PALEO = "paleo"
+
+# ============================================
 # Core Models - MVP
 # ============================================
+
+class UserPreferences(Base):
+    __tablename__ = "user_preferences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    max_budget = Column(Float, default=50.0, nullable=False)
+    max_cooking_time = Column(Integer, default=30, nullable=False)
+    dietary_restrictions = Column(Enum(DietaryRestriction), default=DietaryRestriction.NONE, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<UserPreferences(id={self.id}, max_budget={self.max_budget}, max_cooking_time={self.max_cooking_time}, dietary_restrictions={self.dietary_restrictions})>"
 
 class Recipe(Base):
     __tablename__ = 'recipes'
@@ -30,18 +58,4 @@ class Recipe(Base):
 
     def __repr__(self):
         return f"<Recipe(recipe_id={self.recipe_id}, title={self.title})>"
-
-# ============================================
-# Pydantic Models - For API request
-# ============================================
-class RecipeResponse(BaseModel):
-    recipe_id: int
-    title: str
-    description: str
-    ingredients_list: List[str]
-    cooking_time: int
-    budget_per_serving: float
-    servings: int
-    cuisine_type: str
-    image_url: Optional[str] = None
 

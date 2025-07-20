@@ -1,8 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from models import Base, UserPreferences
 from typing import Generator
 import logging
+import os
+
+from models import Base, UserPreferences
+
+# Config logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Config SQLite database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./biteberry.db"
@@ -15,6 +21,45 @@ engine = create_engine(
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+def init_db():
+    """Initialise the database by creating all tables 
+    and setting up default preferences if needed.
+    """
+    try:
+        # 1. Create all tables
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+
+        # 2. Initialise default data
+        # Check if user preferences exist, if not create default
+        with SessionLocal() as db:
+            preferences = db.query(UserPreferences).first()
+            if not preferences:
+                default_preferences = UserPreferences(
+                    max_budget = 50.0,
+                    max_cooking_time = 30,
+                    dietary_restrictions = DietaryRestriction.NONE,
+                )
+                db.add(default_preferences)
+                db.commit()
+                logger.info("User preferences created")
+            else:
+                logger.info("User preferences already exist")
+    except Exception as e:
+        logger.error(f"Error initialising database: {e}")
+        raise
+
+
+def get_db() -> Generator[Session, None, None]: #Type hint: indicates the function is a generator yielding a session
+    """Dependency for getting database session."""
+    # Create db session
+    db = SessionLocal()
+    try:
+        # Yields the session to FastAPI's dependency injection system
+        yield db
+    # Ensure the session is closed after the request is finished to aviod leaks.
+    finally:
+        db.close()
 
 fake_recipes = [
     {
