@@ -28,3 +28,6 @@ dist/
 
 # Kiro files
 .kiro/
+
+# test files
+tests/

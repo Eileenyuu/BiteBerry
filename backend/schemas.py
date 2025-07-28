@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from models import DietaryRestriction
 from typing import Optional, List
 from datetime import datetime
+from config import DefaultPreferences, ValidationLimits
 
 # ============================================
 # Pydantic Models - For API request
@@ -21,8 +22,8 @@ class RecipeResponse(BaseModel):
 
 # User Preferences
 class UserPreferencesBase(BaseModel):
-    max_budget: float = Field(gt=0, le=100, default=50.0)
-    max_cooking_time: int = Field(gt=0, le=180, default=30)
+    max_budget: float = Field(gt=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=DefaultPreferences.MAX_BUDGET)
+    max_cooking_time: int = Field(gt=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=DefaultPreferences.MAX_COOKING_TIME)
     dietary_restrictions: DietaryRestriction = Field(default=DietaryRestriction.NONE)
 
 class UserPreferencesCreate(UserPreferencesBase):
@@ -34,10 +35,10 @@ class UserPreferencesResponse(UserPreferencesBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-class UserPreferencesUpdate(UserPreferencesBase):
-    max_budget: Optional[float] = Field(gt=0, le=100, default=None)
-    max_cooking_time: Optional[int] = Field(gt=0, le=180, default=None)
+class UserPreferencesUpdate(BaseModel):
+    max_budget: Optional[float] = Field(gt=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=None)
+    max_cooking_time: Optional[int] = Field(gt=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=None)
     dietary_restrictions: Optional[DietaryRestriction] = Field(default=None)
 

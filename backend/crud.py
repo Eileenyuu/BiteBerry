@@ -12,7 +12,7 @@ def create_user_preferences(db: Session, prefs: UserPreferencesCreate) -> UserPr
     Returns the created preferences.
     """
     try:
-        new_prefs = UserPreferences(**prefs.dict())
+        new_prefs = UserPreferences(**prefs.model_dump())
         db.add(new_prefs)
         db.commit()
         db.refresh(new_prefs)
@@ -43,7 +43,7 @@ def update_user_preferences(db: Session, prefs_id: int, updates: UserPreferences
         if not prefs:
             return None
         
-        for field, value in updates.dict(exclude_unset=True).items():
+        for field, value in updates.model_dump(exclude_unset=True).items():
             setattr(prefs, field, value)
         
         db.commit()

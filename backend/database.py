@@ -4,14 +4,18 @@ from typing import Generator
 import logging
 import os
 
-from models import Base, UserPreferences
+from models import Base, UserPreferences, DietaryRestriction
 
 # Config logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Config SQLite database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./biteberry.db"
+# Use different database for testing
+if os.getenv("TESTING") == "true":
+    SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"  # In-memory database for testing
+else:
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./biteberry.db"
 
 # Create engine
 engine = create_engine(
@@ -21,32 +25,14 @@ engine = create_engine(
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 def init_db():
-    """Initialise the database by creating all tables 
-    and setting up default preferences if needed.
-    """
+    """Initialize the database by creating all tables."""
     try:
-        # 1. Create all tables
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables created successfully")
-
-        # 2. Initialise default data
-        # Check if user preferences exist, if not create default
-        with SessionLocal() as db:
-            preferences = db.query(UserPreferences).first()
-            if not preferences:
-                default_preferences = UserPreferences(
-                    max_budget = 50.0,
-                    max_cooking_time = 30,
-                    dietary_restrictions = DietaryRestriction.NONE,
-                )
-                db.add(default_preferences)
-                db.commit()
-                logger.info("User preferences created")
-            else:
-                logger.info("User preferences already exist")
     except Exception as e:
-        logger.error(f"Error initialising database: {e}")
+        logger.error(f"Error initializing database: {e}")
         raise
 
 
