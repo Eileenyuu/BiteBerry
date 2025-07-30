@@ -31,3 +31,8 @@ dist/
 
 # test files
 tests/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3

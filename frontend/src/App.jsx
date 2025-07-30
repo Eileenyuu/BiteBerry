@@ -1,10 +1,10 @@
-import Preferences from "./pages/preferences";
+import AuthWrapper from "./components/AuthWrapper";
 import "./App.css";
 
 function App() {
   return (
     <>
-      <Preferences />
+      <AuthWrapper />
     </>
   );
 }
