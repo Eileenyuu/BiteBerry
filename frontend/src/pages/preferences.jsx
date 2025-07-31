@@ -21,7 +21,7 @@ const Preferences = ({ user }) => {
   useEffect(() => {
     const fetchUserPreferences = async () => {
       if (!user?.id) return;
-      
+
       try {
         const prefs = await getUserPreferences(user.id);
         setPrefs(prefs);
@@ -36,7 +36,7 @@ const Preferences = ({ user }) => {
   const handleSubmitPrefs = async (e) => {
     e.preventDefault();
     if (!user?.id) return;
-    
+
     setLoading(true);
     setStatus("");
 
@@ -81,23 +81,23 @@ const Preferences = ({ user }) => {
   // Handle toggle like/unlike recipe
   const handleToggleLike = async (recipeId) => {
     if (!user?.id) return;
-    
-    const recipe = recipes.find(r => r.recipe_id === recipeId);
+
+    const recipe = recipes.find((r) => r.recipe_id === recipeId);
     if (!recipe) return;
-    
+
     try {
       if (recipe.user_has_liked) {
         // Unlike the recipe
         await unlikeRecipe(recipeId, user.id);
-        
+
         // Update state to reflect unlike
-        setRecipes(prevRecipes => 
-          prevRecipes.map(r => {
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((r) => {
             if (r.recipe_id === recipeId) {
               return {
                 ...r,
                 like_count: Math.max(0, r.like_count - 1),
-                user_has_liked: false
+                user_has_liked: false,
               };
             }
             return r;
@@ -106,15 +106,15 @@ const Preferences = ({ user }) => {
       } else {
         // Like the recipe
         await likeRecipe(recipeId, user.id);
-        
+
         // Update state to reflect like
-        setRecipes(prevRecipes => 
-          prevRecipes.map(r => {
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((r) => {
             if (r.recipe_id === recipeId) {
               return {
                 ...r,
                 like_count: r.like_count + 1,
-                user_has_liked: true
+                user_has_liked: true,
               };
             }
             return r;
@@ -138,8 +138,12 @@ const Preferences = ({ user }) => {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">🍽️ Your Food Preferences</h1>
-        <p className="text-lg text-gray-600">Tell us what you love, and we'll find the perfect recipes for you!</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          🍽️ Your Food Preferences
+        </h1>
+        <p className="text-lg text-gray-600">
+          Tell us what you love, and we'll find the perfect recipes for you!
+        </p>
       </div>
 
       {/* Preferences Form Card */}
@@ -149,11 +153,16 @@ const Preferences = ({ user }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Budget Input */}
             <div className="space-y-2">
-              <label htmlFor="max_budget" className="block text-sm font-semibold text-gray-700 flex items-center">
+              <label
+                htmlFor="max_budget"
+                className="text-sm font-semibold text-gray-700 flex items-center"
+              >
                 💰 Maximum Budget
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">£</span>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  £
+                </span>
                 <input
                   type="number"
                   id="max_budget"
@@ -167,12 +176,17 @@ const Preferences = ({ user }) => {
                   className="pl-8 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
                 />
               </div>
-              <p className="text-xs text-gray-500">How much would you like to spend per meal?</p>
+              <p className="text-xs text-gray-500">
+                How much would you like to spend per meal?
+              </p>
             </div>
 
             {/* Cooking Time Input */}
             <div className="space-y-2">
-              <label htmlFor="max_cooking_time" className="block text-sm font-semibold text-gray-700 flex items-center">
+              <label
+                htmlFor="max_cooking_time"
+                className="text-sm font-semibold text-gray-700 flex items-center"
+              >
                 ⏰ Maximum Cooking Time
               </label>
               <div className="relative">
@@ -187,15 +201,22 @@ const Preferences = ({ user }) => {
                   placeholder="30"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
                 />
-                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">mins</span>
+                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  mins
+                </span>
               </div>
-              <p className="text-xs text-gray-500">How long are you willing to cook?</p>
+              <p className="text-xs text-gray-500">
+                How long are you willing to cook?
+              </p>
             </div>
           </div>
 
           {/* Dietary Restrictions */}
           <div className="space-y-2">
-            <label htmlFor="dietary_restrictions" className="block text-sm font-semibold text-gray-700 flex items-center">
+            <label
+              htmlFor="dietary_restrictions"
+              className="text-sm font-semibold text-gray-700 flex items-center"
+            >
               🥗 Dietary Preferences
             </label>
             <select
@@ -212,21 +233,39 @@ const Preferences = ({ user }) => {
               <option value="dairy-free">🥛 Dairy Free</option>
               <option value="keto">🥩 Keto</option>
             </select>
-            <p className="text-xs text-gray-500">Any special dietary requirements?</p>
+            <p className="text-xs text-gray-500">
+              Any special dietary requirements?
+            </p>
           </div>
 
           {/* Submit Button */}
           <div className="pt-4">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-red-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Finding Perfect Recipes...
                 </span>
@@ -238,12 +277,14 @@ const Preferences = ({ user }) => {
 
           {/* Status Message */}
           {status && (
-            <div className={`mt-4 p-4 rounded-lg border ${
-              status.includes("successfully")
-                ? "bg-green-50 border-green-200 text-green-800"
-                : "bg-red-50 border-red-200 text-red-800"
-            }`}>
-              <div className="flex items-center">
+            <div
+              className={`mt-4 p-4 rounded-lg border ${
+                status.includes("successfully")
+                  ? "bg-green-50 border-green-200 text-green-800"
+                  : "bg-red-50 border-red-200 text-red-800"
+              }`}
+            >
+              <div className="flex items-center justify-center">
                 <span className="mr-2">
                   {status.includes("successfully") ? "✅" : "❌"}
                 </span>
@@ -258,10 +299,15 @@ const Preferences = ({ user }) => {
       {recipes.length > 0 ? (
         <div className="space-y-6">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">🍽️ Perfect Recipes For You</h2>
-            <p className="text-gray-600">Found {recipes.length} delicious recipes matching your preferences!</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              🍽️ Perfect Recipes For You
+            </h2>
+            <p className="text-gray-600">
+              Found {recipes.length} delicious recipes matching your
+              preferences!
+            </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recipes.map((recipe, index) => (
               <div
@@ -272,7 +318,7 @@ const Preferences = ({ user }) => {
                 <div className="h-48 bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center">
                   <span className="text-6xl opacity-80">🍽️</span>
                 </div>
-                
+
                 {/* Recipe Content */}
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
@@ -285,16 +331,16 @@ const Preferences = ({ user }) => {
                       </span>
                     )}
                   </div>
-                  
+
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                     {recipe.description}
                   </p>
-                  
+
                   {/* Recipe Stats */}
                   <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
                     <div className="flex items-center">
-                      <span className="text-green-500 mr-1">💰</span>
-                      £{recipe.budget}
+                      <span className="text-green-500 mr-1">💰</span>£
+                      {recipe.budget}
                     </div>
                     <div className="flex items-center">
                       <span className="text-orange-500 mr-1">⏰</span>
@@ -302,7 +348,7 @@ const Preferences = ({ user }) => {
                     </div>
                     <div className="flex items-center">
                       <span className="text-purple-500 mr-1">👥</span>
-                      {recipe.servings} serving{recipe.servings > 1 ? 's' : ''}
+                      {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
                     </div>
                   </div>
 
@@ -316,12 +362,16 @@ const Preferences = ({ user }) => {
                           : "bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700"
                       }`}
                     >
-                      <span className={`transition-all duration-200 ${recipe.user_has_liked ? "text-red-500 scale-110" : ""}`}>
+                      <span
+                        className={`transition-all duration-200 ${
+                          recipe.user_has_liked ? "text-red-500 scale-110" : ""
+                        }`}
+                      >
                         {recipe.user_has_liked ? "❤️" : "🤍"}
                       </span>
                       <span className="text-sm">{recipe.like_count || 0}</span>
                     </button>
-                    
+
                     <button
                       onClick={() => handleViewRecipe(recipe.recipe_id)}
                       className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
@@ -336,31 +386,46 @@ const Preferences = ({ user }) => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <div className={`max-w-md mx-auto p-8 rounded-xl ${
-            hasSearched 
-              ? "bg-red-50 border-2 border-red-200" 
-              : "bg-yellow-50 border-2 border-yellow-200"
-          }`}>
+          <div
+            className={`max-w-md mx-auto p-8 rounded-xl ${
+              hasSearched
+                ? "bg-red-50 border-2 border-red-200"
+                : "bg-yellow-50 border-2 border-yellow-200"
+            }`}
+          >
             {!hasSearched ? (
               <div className="space-y-4">
                 <div className="text-6xl mb-4">🍳</div>
-                <h3 className="text-xl font-bold text-gray-900">Ready to discover amazing recipes?</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Ready to discover amazing recipes?
+                </h3>
                 <p className="text-gray-600">
-                  Set your preferences above and click "Find My Perfect Recipes" to get personalized recommendations just for you!
+                  Set your preferences above and click "Find My Perfect Recipes"
+                  to get personalized recommendations just for you!
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="text-6xl mb-4">😔</div>
-                <h3 className="text-xl font-bold text-gray-900">No recipes found</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  No recipes found
+                </h3>
                 <p className="text-gray-600">
-                  No recipes match your current preferences. Try increasing your budget 
-                  (currently <span className="font-semibold text-red-600">£{prefs.max_budget}</span>) or 
-                  cooking time (currently <span className="font-semibold text-red-600">{prefs.max_cooking_time} minutes</span>) 
-                  to see more options!
+                  No recipes match your current preferences. Try increasing your
+                  budget (currently{" "}
+                  <span className="font-semibold text-red-600">
+                    £{prefs.max_budget}
+                  </span>
+                  ) or cooking time (currently{" "}
+                  <span className="font-semibold text-red-600">
+                    {prefs.max_cooking_time} minutes
+                  </span>
+                  ) to see more options!
                 </p>
                 <div className="pt-2">
-                  <p className="text-sm text-gray-500">💡 Tip: Most recipes are under £10 and take 30-45 minutes</p>
+                  <p className="text-sm text-gray-500">
+                    💡 Tip: Most recipes are under £10 and take 30-45 minutes
+                  </p>
                 </div>
               </div>
             )}
