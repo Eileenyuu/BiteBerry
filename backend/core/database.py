@@ -4,7 +4,7 @@ from typing import Generator
 import logging
 import os
 
-from models import Base, UserPreferences, DietaryRestriction
+from .models import Base, UserPreferences, DietaryRestriction
 
 # Config logging
 logging.basicConfig(level=logging.INFO)

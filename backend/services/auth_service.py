@@ -1,7 +1,7 @@
 import hashlib
 from sqlalchemy.orm import Session
-from models import User, UserPreferences, DietaryRestriction
-from schemas import UserCreate, UserLogin
+from core.models import User, UserPreferences, DietaryRestriction
+from core.schemas import UserCreate, UserLogin
 from datetime import datetime
 
 def hash_password(password: str) -> str:

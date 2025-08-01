@@ -3,12 +3,13 @@ import { getUserPreferences, updateUserPreferences } from "../api/preferences";
 import { getRecommendations } from "../api/recipes";
 import { likeRecipe, unlikeRecipe } from "../api/likes";
 import RecipeDetail from "./recipes";
+import { DIETARY_RESTRICTIONS, getDietaryRestrictionOptions, isValidDietaryRestriction } from "../constants/enums";
 
 const Preferences = ({ user }) => {
   const [prefs, setPrefs] = useState({
     max_budget: "",
     max_cooking_time: "",
-    dietary_restrictions: null,
+    dietary_restrictions: DIETARY_RESTRICTIONS.NONE,
   });
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,7 @@ const Preferences = ({ user }) => {
       const response = await getRecommendations(user.id, {
         max_budget: parseFloat(prefs.max_budget),
         max_cooking_time: parseInt(prefs.max_cooking_time),
+        dietary_restrictions: prefs.dietary_restrictions,
       });
       setRecipes(response.recommendations || []);
       setHasSearched(true);
@@ -61,6 +63,13 @@ const Preferences = ({ user }) => {
   // Handle User Preferences Input Change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validate dietary restrictions
+    if (name === 'dietary_restrictions' && !isValidDietaryRestriction(value)) {
+      console.warn(`Invalid dietary restriction value: ${value}`);
+      return;
+    }
+    
     setPrefs((pref) => ({
       ...pref,
       [name]: value,
@@ -222,16 +231,15 @@ const Preferences = ({ user }) => {
             <select
               id="dietary_restrictions"
               name="dietary_restrictions"
-              value={prefs.dietary_restrictions || ""}
+              value={prefs.dietary_restrictions || DIETARY_RESTRICTIONS.NONE}
               onChange={handleInputChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white"
             >
-              <option value="">No dietary restrictions</option>
-              <option value="vegetarian">🌱 Vegetarian</option>
-              <option value="vegan">🌿 Vegan</option>
-              <option value="gluten-free">🌾 Gluten Free</option>
-              <option value="dairy-free">🥛 Dairy Free</option>
-              <option value="keto">🥩 Keto</option>
+              {getDietaryRestrictionOptions().map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.emoji} {option.label}
+                </option>
+              ))}
             </select>
             <p className="text-xs text-gray-500">
               Any special dietary requirements?

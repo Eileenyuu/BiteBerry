@@ -81,8 +81,7 @@ rounded"
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-black py-2 px-4 rounded-md 
-hover:bg-blue-600 disabled:bg-gray-400"
+          className="bg-transparent hover:bg-red-400 text-pink-700 font-semibold hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded disabled:bg-gray-400"
         >
           {loading ? "Logging in..." : "Login"}
         </button>

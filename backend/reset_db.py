@@ -9,8 +9,8 @@ import os
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, UserPreferences, DietaryRestriction, Recipe, DifficultyLevel, Like
-from auth import hash_password
+from core.models import Base, User, UserPreferences, DietaryRestriction, Recipe, DifficultyLevel, Like
+from services.auth_service import hash_password
 from datetime import datetime
 import json
 

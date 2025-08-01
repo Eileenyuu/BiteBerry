@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Enum, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Enum, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -108,4 +108,6 @@ class Like(Base):
 
     def __repr__(self):
         return f"<Like(user_id={self.user_id}, recipe_id={self.recipe_id})>"
+
+
 

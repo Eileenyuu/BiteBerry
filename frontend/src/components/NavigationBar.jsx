@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const NavigationBar = ({ user, onLogout }) => {
+const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
@@ -19,24 +19,27 @@ const NavigationBar = ({ user, onLogout }) => {
           {/* Navigation Links */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <a
-                href="#preferences"
-                className="text-red-200 hover:bg-red-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              <button
+                onClick={() => onNavigate("preferences")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentPage === "preferences"
+                    ? "bg-red-600 text-white"
+                    : "text-red-200 hover:bg-red-600 hover:text-white"
+                }`}
               >
                 🍽️ Preferences
-              </a>
-              <a
-                href="#recipes"
-                className="text-red-200 hover:bg-red-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              </button>
+
+              <button
+                onClick={() => onNavigate("recipes")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentPage === "recipes"
+                    ? "bg-red-600 text-white"
+                    : "text-red-200 hover:bg-red-600 hover:text-white"
+                }`}
               >
                 📖 All Recipes
-              </a>
-              <a
-                href="#favorites"
-                className="text-red-200 hover:bg-red-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                ❤️ My Favorites
-              </a>
+              </button>
             </div>
           </div>
 

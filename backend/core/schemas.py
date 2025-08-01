@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field, EmailStr
-from models import DietaryRestriction, DifficultyLevel
+from .models import DietaryRestriction, DifficultyLevel
 from typing import Optional, List
 from datetime import datetime
-from config import DefaultPreferences, ValidationLimits
+from .config import DefaultPreferences, ValidationLimits
 import json
 
 # ============================================
@@ -23,8 +23,8 @@ class RecipeResponse(BaseModel):
 
 # User Preferences
 class UserPreferencesBase(BaseModel):
-    max_budget: float = Field(gt=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=DefaultPreferences.MAX_BUDGET)
-    max_cooking_time: int = Field(gt=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=DefaultPreferences.MAX_COOKING_TIME)
+    max_budget: float = Field(ge=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=DefaultPreferences.MAX_BUDGET)
+    max_cooking_time: int = Field(ge=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=DefaultPreferences.MAX_COOKING_TIME)
     dietary_restrictions: DietaryRestriction = Field(default=DietaryRestriction.NONE)
 
 class UserPreferencesCreate(UserPreferencesBase):
@@ -39,14 +39,14 @@ class UserPreferencesResponse(UserPreferencesBase):
         from_attributes = True
 
 class UserPreferencesUpdate(BaseModel):
-    max_budget: Optional[float] = Field(gt=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=None)
-    max_cooking_time: Optional[int] = Field(gt=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=None)
+    max_budget: Optional[float] = Field(ge=ValidationLimits.MIN_BUDGET, le=ValidationLimits.MAX_BUDGET, default=None)
+    max_cooking_time: Optional[int] = Field(ge=ValidationLimits.MIN_COOKING_TIME, le=ValidationLimits.MAX_COOKING_TIME, default=None)
     dietary_restrictions: Optional[DietaryRestriction] = Field(default=None)
 
 # User Authentication
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=50)
-    email: str = EmailStr
+    email: EmailStr
     password: str = Field(min_length=6, max_length=50)
 
 class UserLogin(BaseModel):
@@ -125,3 +125,5 @@ class RecipeLikeCount(BaseModel):
     recipe_id: int
     like_count: int
     user_has_liked: bool
+
+

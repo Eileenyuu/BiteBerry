@@ -7,6 +7,7 @@ import NavigationBar from "./NavigationBar";
 const AuthWrapper = () => {
   const [user, setUser] = useState(null);
   const [showRegister, setShowRegister] = useState(false);
+  const [currentPage, setCurrentPage] = useState("preferences"); // preferences, shopping, recipes
 
   useEffect(() => {
     // Check if user is already logged in
@@ -29,13 +30,27 @@ const AuthWrapper = () => {
     setShowRegister(false);
   };
 
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case "preferences":
+        return <Preferences user={user} />;
+      case "shopping":
+        return <ShoppingLists user={user} />;
+      default:
+        return <Preferences user={user} />;
+    }
+  };
+
   if (user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavigationBar user={user} onLogout={handleLogout} />
-        <div className="container mx-auto py-8">
-          <Preferences user={user} />
-        </div>
+        <NavigationBar
+          user={user}
+          onLogout={handleLogout}
+          currentPage={currentPage}
+          onNavigate={setCurrentPage}
+        />
+        <div className="container mx-auto py-8">{renderCurrentPage()}</div>
       </div>
     );
   }
