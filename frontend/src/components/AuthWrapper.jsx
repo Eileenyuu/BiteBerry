@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Login from "../pages/login";
 import Register from "../pages/register";
 import Preferences from "../pages/preferences";
+import RecipesAll from "../pages/recipes_all";
 import NavigationBar from "./NavigationBar";
 
 const AuthWrapper = () => {
@@ -34,8 +35,8 @@ const AuthWrapper = () => {
     switch (currentPage) {
       case "preferences":
         return <Preferences user={user} />;
-      case "shopping":
-        return <ShoppingLists user={user} />;
+      case "recipes_all":
+        return <RecipesAll user={user} />;
       default:
         return <Preferences user={user} />;
     }
@@ -50,7 +51,7 @@ const AuthWrapper = () => {
           currentPage={currentPage}
           onNavigate={setCurrentPage}
         />
-        <div className="container mx-auto py-8">{renderCurrentPage()}</div>
+        <div className="w-full py-8">{renderCurrentPage()}</div>
       </div>
     );
   }

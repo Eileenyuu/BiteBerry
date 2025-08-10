@@ -9,11 +9,14 @@ const RecipeDetail = ({ recipeId, onBack }) => {
     // Fetch Recipe Detail
     const fetchRecipeDetail = async () => {
       try {
+        console.log("Fetching recipe detail for ID:", recipeId);
         const recipeDetail = await getRecipeDetail(recipeId);
+        console.log("Recipe detail response:", recipeDetail);
         setRecipe(recipeDetail);
         setLoading(false);
       } catch (error) {
-        console.error("Error: ", error);
+        console.error("Error fetching recipe detail:", error);
+        console.error("Error details:", error.response?.data);
         setLoading(false);
       }
     };

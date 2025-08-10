@@ -29,6 +29,10 @@ dist/
 # Kiro files
 .kiro/
 
+# Claude files
+.claude/
+CLAUDE.md
+
 # test files
 tests/
 

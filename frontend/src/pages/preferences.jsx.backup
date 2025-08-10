@@ -1,0 +1,494 @@
+import { useEffect, useState } from "react";
+import { getUserPreferences, updateUserPreferences } from "../api/preferences";
+import { getRecommendations } from "../api/recipes";
+import { likeRecipe, unlikeRecipe } from "../api/likes";
+import RecipeDetail from "./recipes";
+import {
+  DIETARY_RESTRICTIONS,
+  getDietaryRestrictionOptions,
+  isValidDietaryRestriction,
+} from "../constants/enums";
+
+const Preferences = ({ user }) => {
+  const [prefs, setPrefs] = useState({
+    max_budget: "",
+    max_cooking_time: "",
+    dietary_restrictions: DIETARY_RESTRICTIONS.NONE,
+  });
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [recipes, setRecipes] = useState([]);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [recommendationData, setRecommendationData] = useState(null);
+
+  // Loading user preferences on initialization
+  useEffect(() => {
+    const fetchUserPreferences = async () => {
+      if (!user?.id) return;
+
+      try {
+        const prefs = await getUserPreferences(user.id);
+        setPrefs(prefs);
+      } catch (error) {
+        console.error("Failed to load preferences:", error);
+      }
+    };
+    fetchUserPreferences();
+  }, [user]);
+
+  // Handle form submit
+  const handleSubmitPrefs = async (e) => {
+    e.preventDefault();
+    if (!user?.id) return;
+
+    setLoading(true);
+    setStatus("");
+
+    try {
+      await updateUserPreferences(user.id, prefs);
+      setStatus("Your preferences saved successfully!");
+
+      // Get recipe recommendations using current form values
+      const response = await getRecommendations(user.id, {
+        max_budget: parseFloat(prefs.max_budget),
+        max_cooking_time: parseInt(prefs.max_cooking_time),
+        dietary_restrictions: prefs.dietary_restrictions,
+      });
+      setRecipes(response.recommendations || []);
+      setRecommendationData(response);
+      setHasSearched(true);
+
+      // Store AI recommendation info for display
+      console.log("🔍 Recommendation response:", {
+        total: response.total_count,
+        ai_count: response.ai_count,
+        has_ai: response.has_ai_recommendations,
+        recipes_with_ai_type: response.recommendations?.filter(r => r.recommendation_type === 'ai').length || 0
+      });
+      
+      if (response.has_ai_recommendations) {
+        console.log(
+          `✨ Found ${response.ai_count} AI recommendations out of ${response.total_count} total`
+        );
+      } else {
+        console.log("❌ No AI recommendations found");
+      }
+    } catch (error) {
+      setStatus("Failed to save your preferences. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle User Preferences Input Change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validate dietary restrictions
+    if (name === "dietary_restrictions" && !isValidDietaryRestriction(value)) {
+      console.warn(`Invalid dietary restriction value: ${value}`);
+      return;
+    }
+
+    setPrefs((pref) => ({
+      ...pref,
+      [name]: value,
+    }));
+  };
+
+  // Handle View Recipe Detail
+  const handleViewRecipe = (recipeId) => {
+    setSelectedRecipeId(recipeId);
+    setShowDetail(true);
+  };
+
+  const handleBackToList = () => {
+    setShowDetail(false);
+    setSelectedRecipeId(null);
+  };
+
+  // Handle toggle like/unlike recipe
+  const handleToggleLike = async (recipeId) => {
+    if (!user?.id) return;
+
+    const recipe = recipes.find((r) => r.recipe_id === recipeId);
+    if (!recipe) return;
+
+    try {
+      if (recipe.user_has_liked) {
+        // Unlike the recipe
+        await unlikeRecipe(recipeId, user.id);
+
+        // Update state to reflect unlike
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((r) => {
+            if (r.recipe_id === recipeId) {
+              return {
+                ...r,
+                like_count: Math.max(0, r.like_count - 1),
+                user_has_liked: false,
+              };
+            }
+            return r;
+          })
+        );
+      } else {
+        // Like the recipe
+        await likeRecipe(recipeId, user.id);
+
+        // Update state to reflect like
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((r) => {
+            if (r.recipe_id === recipeId) {
+              return {
+                ...r,
+                like_count: r.like_count + 1,
+                user_has_liked: true,
+              };
+            }
+            return r;
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    }
+  };
+
+  if (showDetail && selectedRecipeId) {
+    return (
+      <div className="preferences-container">
+        <RecipeDetail recipeId={selectedRecipeId} onBack={handleBackToList} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          🍽️ Your Food Preferences
+        </h1>
+        <p className="text-lg text-gray-600">
+          Tell us what you love, and we'll find the perfect recipes for you!
+        </p>
+      </div>
+
+      {/* Preferences Form Card */}
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <form onSubmit={handleSubmitPrefs} className="space-y-6">
+          {/* Grid Layout for Form Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Budget Input */}
+            <div className="space-y-2">
+              <label
+                htmlFor="max_budget"
+                className="text-sm font-semibold text-gray-700 flex items-center"
+              >
+                💰 Maximum Budget
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  £
+                </span>
+                <input
+                  type="number"
+                  id="max_budget"
+                  name="max_budget"
+                  value={prefs.max_budget}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="100"
+                  step="0.01"
+                  placeholder="15.00"
+                  className="pl-8 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                How much would you like to spend per meal?
+              </p>
+            </div>
+
+            {/* Cooking Time Input */}
+            <div className="space-y-2">
+              <label
+                htmlFor="max_cooking_time"
+                className="text-sm font-semibold text-gray-700 flex items-center"
+              >
+                ⏰ Maximum Cooking Time
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="max_cooking_time"
+                  name="max_cooking_time"
+                  value={prefs.max_cooking_time}
+                  onChange={handleInputChange}
+                  min="10"
+                  max="180"
+                  placeholder="30"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                />
+                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                  mins
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                How long are you willing to cook?
+              </p>
+            </div>
+          </div>
+
+          {/* Dietary Restrictions */}
+          <div className="space-y-2">
+            <label
+              htmlFor="dietary_restrictions"
+              className="text-sm font-semibold text-gray-700 flex items-center"
+            >
+              🥗 Dietary Preferences
+            </label>
+            <select
+              id="dietary_restrictions"
+              name="dietary_restrictions"
+              value={prefs.dietary_restrictions || DIETARY_RESTRICTIONS.NONE}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white"
+            >
+              {getDietaryRestrictionOptions().map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.emoji} {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500">
+              Any special dietary requirements?
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-red-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Finding Perfect Recipes...
+                </span>
+              ) : (
+                "🔍 Find My Perfect Recipes"
+              )}
+            </button>
+          </div>
+
+          {/* Status Message */}
+          {status && (
+            <div
+              className={`mt-4 p-4 rounded-lg border ${
+                status.includes("successfully")
+                  ? "bg-green-50 border-green-200 text-green-800"
+                  : "bg-red-50 border-red-200 text-red-800"
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                <span className="mr-2">
+                  {status.includes("successfully") ? "✅" : "❌"}
+                </span>
+                {status}
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
+
+      {/* Recipe Recommendations Section */}
+      {recipes.length > 0 ? (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              🍽️ Perfect Recipes For You
+            </h2>
+            <div className="space-y-2">
+              <p className="text-gray-600">
+                Found {recipes.length} delicious recipes matching your
+                preferences!
+              </p>
+              {recommendationData?.has_ai_recommendations && (
+                <div className="flex items-center justify-center gap-4 text-sm">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
+                    🤖 {recommendationData.ai_count} AI-suggested
+                  </span>
+                  <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-medium">
+                    📋 {recommendationData.regular_count} filter-based
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe, index) => (
+              <div
+                key={recipe.recipe_id || index}
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
+              >
+                {/* Recipe Image Placeholder */}
+                <div className="h-48 bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center">
+                  <span className="text-6xl opacity-80">🍽️</span>
+                </div>
+
+                {/* Recipe Content */}
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
+                      {recipe.title}
+                    </h3>
+                    <div className="flex gap-2">
+                      {recipe.recommendation_type === "ai" && (
+                        <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                          🤖 AI Suggested
+                        </span>
+                      )}
+                      {recipe.recommendation_type === "popular" && (
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                          🔥 Popular
+                        </span>
+                      )}
+                      {recipe.cuisine && (
+                        <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+                          {recipe.cuisine}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {recipe.description}
+                  </p>
+
+
+                  {/* Recipe Stats */}
+                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <span className="text-green-500 mr-1">💰</span>£
+                      {recipe.budget}
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-orange-500 mr-1">⏰</span>
+                      {recipe.cooking_time}min
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-purple-500 mr-1">👥</span>
+                      {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => handleToggleLike(recipe.recipe_id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        recipe.user_has_liked
+                          ? "bg-red-100 text-red-700 hover:bg-red-200"
+                          : "bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700"
+                      }`}
+                    >
+                      <span
+                        className={`transition-all duration-200 ${
+                          recipe.user_has_liked ? "text-red-500 scale-110" : ""
+                        }`}
+                      >
+                        {recipe.user_has_liked ? "❤️" : "🤍"}
+                      </span>
+                      <span className="text-sm">{recipe.like_count || 0}</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleViewRecipe(recipe.recipe_id)}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                    >
+                      View Recipe →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <div
+            className={`max-w-md mx-auto p-8 rounded-xl ${
+              hasSearched
+                ? "bg-red-50 border-2 border-red-200"
+                : "bg-yellow-50 border-2 border-yellow-200"
+            }`}
+          >
+            {!hasSearched ? (
+              <div className="space-y-4">
+                <div className="text-6xl mb-4">🍳</div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Ready to discover amazing recipes?
+                </h3>
+                <p className="text-gray-600">
+                  Set your preferences above and click "Find My Perfect Recipes"
+                  to get personalized recommendations just for you!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-6xl mb-4">😔</div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  No recipes found
+                </h3>
+                <p className="text-gray-600">
+                  No recipes match your current preferences. Try increasing your
+                  budget (currently{" "}
+                  <span className="font-semibold text-red-600">
+                    £{prefs.max_budget}
+                  </span>
+                  ) or cooking time (currently{" "}
+                  <span className="font-semibold text-red-600">
+                    {prefs.max_cooking_time} minutes
+                  </span>
+                  ) to see more options!
+                </p>
+                <div className="pt-2">
+                  <p className="text-sm text-gray-500">
+                    💡 Tip: Most recipes are under £10 and take 30-45 minutes
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Preferences;

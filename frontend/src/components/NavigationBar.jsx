@@ -31,9 +31,9 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
               </button>
 
               <button
-                onClick={() => onNavigate("recipes")}
+                onClick={() => onNavigate("recipes_all")}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currentPage === "recipes"
+                  currentPage === "recipes_all"
                     ? "bg-red-600 text-white"
                     : "text-red-200 hover:bg-red-600 hover:text-white"
                 }`}
@@ -117,12 +117,6 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
             className="text-red-200 hover:text-white block px-3 py-2 text-base font-medium"
           >
             📖 All Recipes
-          </a>
-          <a
-            href="#favorites"
-            className="text-red-200 hover:text-white block px-3 py-2 text-base font-medium"
-          >
-            ❤️ My Favorites
           </a>
         </div>
       </div>

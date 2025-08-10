@@ -7,7 +7,7 @@ from typing import List
 import logging
 
 from core.database import get_db
-from core.models import Recipe, DietaryRestriction, UserPreferences
+from core.models import Recipe, DietaryRestriction, UserPreferences, Like
 from core.schemas import RecipeResponse
 from services.recommendation_service import get_recipe_recommendations
 
@@ -16,12 +16,52 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/recipes", tags=["recipes"])
 
 
-@router.get("/", response_model=List[RecipeResponse])
-async def get_all_recipes(db: Session = Depends(get_db)):
-    """Get all recipes"""
+@router.get("/")
+async def get_all_recipes(user_id: int = None, db: Session = Depends(get_db)):
+    """Get all recipes with like information"""
     try:
         recipes = db.query(Recipe).all()
-        return [RecipeResponse.from_orm(recipe) for recipe in recipes]
+        result = []
+        
+        for recipe in recipes:
+            # Parse JSON fields
+            import json
+            ingredients = json.loads(recipe.ingredients) if recipe.ingredients else []
+            instructions = json.loads(recipe.instructions) if recipe.instructions else []
+            
+            # Get like information
+            like_count = db.query(Like).filter(Like.recipe_id == recipe.id).count()
+            user_has_liked = False
+            if user_id:
+                user_has_liked = db.query(Like).filter(
+                    Like.user_id == user_id, 
+                    Like.recipe_id == recipe.id
+                ).first() is not None
+            
+            recipe_data = {
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'ingredients': ingredients,
+                'instructions': instructions,
+                'cooking_time': recipe.cooking_time,
+                'prep_time': recipe.prep_time,
+                'difficulty': recipe.difficulty.value,
+                'servings': recipe.servings,
+                'budget': recipe.budget,
+                'calories_per_serving': recipe.calories_per_serving,
+                'cuisine': recipe.cuisine,
+                'dietary_restrictions': recipe.dietary_restrictions.value,
+                'image_url': recipe.image_url,
+                'is_featured': bool(recipe.is_featured),
+                'average_rating': recipe.average_rating,
+                'created_at': recipe.created_at,
+                'like_count': like_count,
+                'user_has_liked': user_has_liked
+            }
+            result.append(recipe_data)
+        
+        return result
     except Exception as e:
         logger.error(f"Error retrieving recipes: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve recipes")
@@ -71,7 +111,8 @@ async def recommend_recipe(
     user_id: int, 
     max_budget: float = None, 
     max_cooking_time: int = None, 
-    dietary_restrictions: str = None, 
+    dietary_restrictions: str = None,
+    enable_ai: bool = True,
     db: Session = Depends(get_db)
 ):
     """
@@ -81,6 +122,13 @@ async def recommend_recipe(
     1. Query parameters (if provided)
     2. User's saved preferences (from database)
     3. System default values
+    
+    Args:
+        user_id: User ID to get recommendations for
+        max_budget: Optional budget override
+        max_cooking_time: Optional cooking time override  
+        dietary_restrictions: Optional dietary restriction override
+        enable_ai: Whether to include AI-powered recommendations (default: True)
     """
     try:
         # Get user preferences from database
@@ -111,8 +159,13 @@ async def recommend_recipe(
             user_id=user_id,
             final_budget=final_budget,
             final_cooking_time=final_cooking_time,
-            final_dietary_restrictions=final_dietary_restrictions
+            final_dietary_restrictions=final_dietary_restrictions,
+            include_ai=enable_ai
         )
+        
+        # Separate AI and regular recommendations for better frontend display
+        ai_recommendations = [r for r in recommended_recipes if r.get('recommendation_type') == 'ai']
+        regular_recommendations = [r for r in recommended_recipes if r.get('recommendation_type') != 'ai']
         
         # Prepare response with proper structure
         response = {
@@ -122,7 +175,10 @@ async def recommend_recipe(
                 'dietary_restrictions': final_dietary_restrictions.value
             },
             'recommendations': recommended_recipes,
-            'total_count': len(recommended_recipes)
+            'total_count': len(recommended_recipes),
+            'ai_count': len(ai_recommendations),
+            'regular_count': len(regular_recommendations),
+            'has_ai_recommendations': len(ai_recommendations) > 0
         }
         
         # Add suggestion message if no results found

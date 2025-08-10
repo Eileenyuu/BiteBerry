@@ -1,12 +1,13 @@
 import axios from "./axios";
 
-export const getAllRecipes = async () => {
-  const recipes_res = await axios.get("/recipes");
+export const getAllRecipes = async (userId = null) => {
+  const params = userId ? { user_id: userId } : {};
+  const recipes_res = await axios.get("/api/recipes", { params });
   return recipes_res.data;
 };
 
 export const getRecommendations = async (userId, params = {}) => {
-  const recommend_res = await axios.get(`/recommend/${userId}`, { params });
+  const recommend_res = await axios.get(`/api/recipes/recommend/${userId}`, { params });
   return recommend_res.data;
 };
 
