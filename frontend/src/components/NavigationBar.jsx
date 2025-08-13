@@ -36,6 +36,28 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
           >
             📖 All Recipes
           </button>
+
+          <button
+            onClick={() => onNavigate("shopping")}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              currentPage === "shopping"
+                ? "bg-red-600 text-white"
+                : "text-red-200 hover:bg-red-600 hover:text-white"
+            }`}
+          >
+            🛒 Shopping
+          </button>
+
+          <button
+            onClick={() => onNavigate("meal_planning")}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              currentPage === "meal_planning"
+                ? "bg-red-600 text-white"
+                : "text-red-200 hover:bg-red-600 hover:text-white"
+            }`}
+          >
+            📅 Meal Plan
+          </button>
         </div>
 
         {/* User Profile - Right */}
@@ -70,7 +92,7 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
                 <div className="font-medium">{user?.username}</div>
                 <div className="text-xs text-gray-500">{user?.email}</div>
               </div>
-              <a
+              {/* <a
                 href="#profile"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
@@ -81,7 +103,7 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 ❓ Help & Support
-              </a>
+              </a> */}
               <button
                 onClick={onLogout}
                 className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
@@ -115,6 +137,26 @@ const NavigationBar = ({ user, onLogout, currentPage, onNavigate }) => {
             }`}
           >
             📖 All Recipes
+          </button>
+          <button
+            onClick={() => onNavigate("shopping")}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors text-left ${
+              currentPage === "shopping"
+                ? "bg-red-600 text-white"
+                : "text-red-200 hover:bg-red-600 hover:text-white"
+            }`}
+          >
+            🛒 Shopping
+          </button>
+          <button
+            onClick={() => onNavigate("meal_planning")}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors text-left ${
+              currentPage === "meal_planning"
+                ? "bg-red-600 text-white"
+                : "text-red-200 hover:bg-red-600 hover:text-white"
+            }`}
+          >
+            📅 Meal Plan
           </button>
         </div>
       </div>

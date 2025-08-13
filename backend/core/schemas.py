@@ -126,4 +126,57 @@ class RecipeLikeCount(BaseModel):
     like_count: int
     user_has_liked: bool
 
+# Shopping List Schemas
+class ShoppingListItemBase(BaseModel):
+    ingredient: str
+    quantity: str = "1"
+
+class ShoppingListItemCreate(ShoppingListItemBase):
+    pass
+
+class ShoppingListItem(ShoppingListItemBase):
+    id: int
+    is_checked: bool = False
+    
+    class Config:
+        from_attributes = True
+
+class ShoppingListBase(BaseModel):
+    name: str
+
+class ShoppingListCreate(ShoppingListBase):
+    recipe_ids: List[int]
+
+class ShoppingList(ShoppingListBase):
+    id: int
+    user_id: int
+    created_at: datetime
+    items: List[ShoppingListItem] = []
+    
+    class Config:
+        from_attributes = True
+
+# Meal Planning Schemas
+class MealPlanBase(BaseModel):
+    recipe_id: int
+    meal_date: datetime
+    meal_type: str  # breakfast, lunch, dinner
+    servings: int = 2
+
+class MealPlanCreate(MealPlanBase):
+    pass
+
+class MealPlan(MealPlanBase):
+    id: int
+    user_id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class WeeklyMealPlan(BaseModel):
+    start_date: str  # YYYY-MM-DD
+    end_date: str    # YYYY-MM-DD
+    meal_plans: List[MealPlan] = []
+
 

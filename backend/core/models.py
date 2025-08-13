@@ -26,6 +26,11 @@ class DifficultyLevel(PyEnum):
     MEDIUM = "medium"
     HARD = "hard"
 
+class MealType(PyEnum):
+    BREAKFAST = "breakfast"
+    LUNCH = "lunch"
+    DINNER = "dinner"
+
 # ============================================
 # Core Models - MVP
 # ============================================
@@ -109,5 +114,40 @@ class Like(Base):
     def __repr__(self):
         return f"<Like(user_id={self.user_id}, recipe_id={self.recipe_id})>"
 
+class ShoppingList(Base):
+    __tablename__ = "shopping_lists"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    name = Column(String(200), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<ShoppingList(id={self.id}, name={self.name})>"
 
+class ShoppingListItem(Base):
+    __tablename__ = "shopping_list_items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    list_id = Column(Integer, ForeignKey("shopping_lists.id"), nullable=False)
+    ingredient = Column(String(200), nullable=False)
+    quantity = Column(String(50), default="1")
+    is_checked = Column(Boolean, default=False)
+    
+    def __repr__(self):
+        return f"<ShoppingListItem(id={self.id}, ingredient={self.ingredient})>"
+
+class MealPlan(Base):
+    __tablename__ = "meal_plans"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    recipe_id = Column(Integer, ForeignKey("recipes.id"), nullable=False)
+    meal_date = Column(DateTime, nullable=False)  # Date for the meal
+    meal_type = Column(String(50), nullable=False)  # breakfast, lunch, dinner
+    servings = Column(Integer, default=2, nullable=False)  # How many servings planned
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<MealPlan(id={self.id}, date={self.meal_date.date()}, meal_type={self.meal_type})>"
 

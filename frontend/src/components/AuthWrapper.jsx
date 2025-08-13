@@ -3,6 +3,8 @@ import Login from "../pages/login";
 import Register from "../pages/register";
 import Preferences from "../pages/preferences";
 import RecipesAll from "../pages/recipes_all";
+import Shopping from "../pages/shopping";
+import MealPlanning from "../pages/meal_planning";
 import NavigationBar from "./NavigationBar";
 
 const AuthWrapper = () => {
@@ -37,6 +39,10 @@ const AuthWrapper = () => {
         return <Preferences user={user} />;
       case "recipes_all":
         return <RecipesAll user={user} />;
+      case "shopping":
+        return <Shopping user={user} />;
+      case "meal_planning":
+        return <MealPlanning user={user} onNavigate={setCurrentPage} />;
       default:
         return <Preferences user={user} />;
     }
@@ -58,43 +64,47 @@ const AuthWrapper = () => {
 
   return (
     <div>
-      <div className="bg-red-400 rounded-xl text-white p-4 text-center">
-        <h1 className="text-2xl font-bold">🍓 BiteBerry</h1>
-        <p className="text-red-100">Your personalized recipe assistant</p>
-      </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="bg-red-400 rounded-xl text-white p-4 text-center">
+            <h1 className="text-2xl font-bold">🍓 BiteBerry</h1>
+            <p className="text-red-100">Your personalized recipe assistant</p>
+          </div>
 
-      <div className="p-4">
-        {showRegister ? (
-          <div>
-            <Register onRegister={handleRegisterSuccess} />
-            <div className="text-center mt-4">
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <button
-                  onClick={() => setShowRegister(false)}
-                  className="text-blue-500 hover:underline"
-                >
-                  Login here
-                </button>
-              </p>
-            </div>
+          <div className="p-4">
+            {showRegister ? (
+              <div>
+                <Register onRegister={handleRegisterSuccess} />
+                <div className="text-center mt-4">
+                  <p className="text-gray-600">
+                    Already have an account?{" "}
+                    <button
+                      onClick={() => setShowRegister(false)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Login here
+                    </button>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Login onLogin={handleLogin} />
+                <div className="text-center mt-4">
+                  <p className="text-gray-600">
+                    Don't have an account?{" "}
+                    <button
+                      onClick={() => setShowRegister(true)}
+                      className="text-blue-500 hover:underline"
+                    >
+                      Register here
+                    </button>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div>
-            <Login onLogin={handleLogin} />
-            <div className="text-center mt-4">
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="text-blue-500 hover:underline"
-                >
-                  Register here
-                </button>
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

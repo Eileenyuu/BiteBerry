@@ -14,3 +14,8 @@ export const unlikeRecipe = async (recipeId, userId) => {
   const response = await axios.delete(`/api/recipes/${recipeId}/unlike/${userId}`);
   return response.data;
 };
+
+export const getUserLikedRecipes = async (userId) => {
+  const response = await axios.get(`/api/recipes/liked/${userId}`);
+  return response.data;
+};

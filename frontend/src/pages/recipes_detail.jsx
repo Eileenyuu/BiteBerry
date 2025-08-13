@@ -40,7 +40,7 @@ const RecipeDetail = ({ recipeId, onBack }) => {
       <div className="mb-6">
         <button
           onClick={onBack}
-          className="mb-4 px-6 py-3 bg-blue-600 text-black font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          className="mb-4 px-6 py-3 bg-transparent border border-red-600 text-red-500 font-semibold rounded-lg hover:bg-red-400 hover:text-white transition-colors shadow-md"
         >
           ← Back to Recipes
         </button>
@@ -89,7 +89,7 @@ const RecipeDetail = ({ recipeId, onBack }) => {
             {recipe.ingredients &&
               recipe.ingredients.map((ingredient, index) => (
                 <li key={index} className="flex items-center text-gray-700">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></span>
                   {ingredient}
                 </li>
               ))}
@@ -101,11 +101,11 @@ const RecipeDetail = ({ recipeId, onBack }) => {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
             📝 Instructions
           </h2>
-          <ol className="space-y-3">
+          <ol className="space-y-3 text-left">
             {recipe.instructions &&
               recipe.instructions.map((step, index) => (
                 <li key={index} className="flex text-gray-700">
-                  <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0 mt-0.5">
+                  <span className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0 mt-0.5">
                     {index + 1}
                   </span>
                   <span className="leading-relaxed">{step}</span>

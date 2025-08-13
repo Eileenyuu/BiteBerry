@@ -11,7 +11,7 @@ import logging
 from core.database import init_db
 
 # Import API routes
-from api.routes import recipes, auth, preferences, likes
+from api.routes import recipes, auth, preferences, likes, shopping, meal_planning
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -85,6 +85,8 @@ app.include_router(recipes.router)
 app.include_router(auth.router)
 app.include_router(preferences.router)
 app.include_router(likes.router)
+app.include_router(shopping.router)
+app.include_router(meal_planning.router)
 
 # Health check endpoint
 @app.get('/health')

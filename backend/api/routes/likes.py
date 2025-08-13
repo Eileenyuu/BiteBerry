@@ -127,3 +127,29 @@ async def unlike_recipe(recipe_id: int, user_id: int, db: Session = Depends(get_
     except Exception as e:
         logger.error(f"Error unliking recipe: {e}")
         raise HTTPException(status_code=500, detail="Failed to unlike recipe")
+
+
+@router.get('/liked/{user_id}')
+async def get_user_liked_recipes(user_id: int, db: Session = Depends(get_db)):
+    """Get all recipes liked by a user"""
+    try:
+        logger.info(f"Getting liked recipes for user {user_id}")
+        
+        # Check if user exists
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get all recipes liked by this user
+        liked_recipes = db.query(Recipe).join(Like).filter(
+            Like.user_id == user_id
+        ).all()
+        
+        logger.info(f"Found {len(liked_recipes)} liked recipes for user {user_id}")
+        return liked_recipes
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting liked recipes: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get liked recipes")
