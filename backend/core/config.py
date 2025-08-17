@@ -4,7 +4,7 @@ Configuration constants for BiteBerry application
 
 class DefaultPreferences:
     """Default values for user preferences"""
-    MAX_BUDGET = 50.0
+    MAX_BUDGET = 20.0
     MAX_COOKING_TIME = 30
     DIETARY_RESTRICTIONS = "none"
 

@@ -1,6 +1,7 @@
 import hashlib
 from sqlalchemy.orm import Session
 from core.models import User, UserPreferences, DietaryRestriction
+from core.config import DefaultPreferences
 from core.schemas import UserCreate, UserLogin
 from datetime import datetime
 
@@ -39,8 +40,8 @@ def create_user(db: Session, user_data: UserCreate) -> User:
         # Create default preferences for the new user
         default_preferences = UserPreferences(
             user_id=new_user.id,
-            max_budget=20.0,
-            max_cooking_time=30,
+            max_budget=DefaultPreferences.MAX_BUDGET,
+            max_cooking_time=DefaultPreferences.MAX_COOKING_TIME,
             dietary_restrictions=DietaryRestriction.NONE,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()

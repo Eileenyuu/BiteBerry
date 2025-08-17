@@ -9,6 +9,7 @@ import logging
 from core.database import get_db
 from core.models import Recipe, DietaryRestriction, UserPreferences, Like
 from core.schemas import RecipeResponse
+from core.config import DefaultPreferences
 from services.recommendation_service import get_recipe_recommendations
 
 logger = logging.getLogger(__name__)
@@ -92,8 +93,8 @@ def get_or_create_preferences(db: Session, user_id: int) -> UserPreferences:
             logger.info(f"No preferences found for user {user_id}, creating default preferences")
             default_prefs = UserPreferences(
                 user_id=user_id,
-                max_budget=20.0,
-                max_cooking_time=30,
+                max_budget=DefaultPreferences.MAX_BUDGET,
+                max_cooking_time=DefaultPreferences.MAX_COOKING_TIME,
                 dietary_restrictions=DietaryRestriction.NONE
             )
             db.add(default_prefs)
@@ -154,7 +155,7 @@ async def recommend_recipe(
             final_dietary_restrictions = user_preferences.dietary_restrictions
         
         # Get recommendations using service
-        recommended_recipes = get_recipe_recommendations(
+        recommendation_result = get_recipe_recommendations(
             db=db,
             user_id=user_id,
             final_budget=final_budget,
@@ -162,6 +163,9 @@ async def recommend_recipe(
             final_dietary_restrictions=final_dietary_restrictions,
             include_ai=enable_ai
         )
+        
+        # Extract recipes list from new paginated response
+        recommended_recipes = recommendation_result['recipes']
         
         # Separate AI and regular recommendations for better frontend display
         ai_recommendations = [r for r in recommended_recipes if r.get('recommendation_type') == 'ai']
@@ -175,10 +179,15 @@ async def recommend_recipe(
                 'dietary_restrictions': final_dietary_restrictions.value
             },
             'recommendations': recommended_recipes,
-            'total_count': len(recommended_recipes),
+            'total_count': recommendation_result['total_count'],
             'ai_count': len(ai_recommendations),
             'regular_count': len(regular_recommendations),
-            'has_ai_recommendations': len(ai_recommendations) > 0
+            'has_ai_recommendations': len(ai_recommendations) > 0,
+            'pagination': {
+                'limit': recommendation_result['limit'],
+                'offset': recommendation_result['offset'],
+                'has_more': recommendation_result['has_more']
+            }
         }
         
         # Add suggestion message if no results found

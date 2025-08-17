@@ -73,18 +73,18 @@ class Recipe(Base):
     instructions = Column(Text, nullable=False)  # JSON array of instructions
     
     # Cooking details
-    cooking_time = Column(Integer, nullable=False)  # minutes
+    cooking_time = Column(Integer, nullable=False, index=True)  # minutes - indexed for filtering
     prep_time = Column(Integer, default=10)  # minutes
     difficulty = Column(Enum(DifficultyLevel), default=DifficultyLevel.EASY)
     servings = Column(Integer, default=2, nullable=False)
     
     # Cost and nutrition
-    budget = Column(Float, nullable=False)  # total cost, not per serving
+    budget = Column(Float, nullable=False, index=True)  # total cost, not per serving - indexed for filtering
     calories_per_serving = Column(Integer, default=400)
     
     # Categories
     cuisine = Column(String(50))  # Japanese, Italian, etc.
-    dietary_restrictions = Column(Enum(DietaryRestriction), default=DietaryRestriction.NONE)
+    dietary_restrictions = Column(Enum(DietaryRestriction), default=DietaryRestriction.NONE, index=True)  # indexed for filtering
     
     # Media and metadata
     image_url = Column(String(500))  # placeholder or real image URLs

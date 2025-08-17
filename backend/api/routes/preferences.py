@@ -9,6 +9,7 @@ import logging
 from core.database import get_db
 from core.models import UserPreferences, DietaryRestriction
 from core.schemas import UserPreferencesUpdate, UserPreferencesResponse
+from core.config import DefaultPreferences
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ def get_or_create_preferences(db: Session, user_id: int) -> UserPreferences:
             logger.info(f"No preferences found for user {user_id}, creating default preferences")
             default_prefs = UserPreferences(
                 user_id=user_id,
-                max_budget=20.0,
-                max_cooking_time=30,
+                max_budget=DefaultPreferences.MAX_BUDGET,
+                max_cooking_time=DefaultPreferences.MAX_COOKING_TIME,
                 dietary_restrictions=DietaryRestriction.NONE
             )
             db.add(default_prefs)
