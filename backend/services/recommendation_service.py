@@ -49,7 +49,7 @@ def get_recipe_recommendations(
         final_dietary_restrictions, limit, offset
     )
     
-    # Convert to standardized format (Convert to dictionary)
+    # Convert to standardized format
     recommended_recipes = serialize_recipe_list(recipe_data_list)
     
     # Add AI recommendations if enabled and available
