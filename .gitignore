@@ -34,9 +34,12 @@ dist/
 CLAUDE.md
 
 # test files
-tests/
+# tests/
 
 # Database files
 *.db
 *.sqlite
 *.sqlite3
+
+# Markdown files
+AI_RECOMMENDATION_ANALYSIS.md
