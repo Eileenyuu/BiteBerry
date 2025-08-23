@@ -7,6 +7,27 @@ from core.models import DietaryRestriction
 import numpy as np
 
 
+def _setup_empty_query_mock(mock_db):
+    """Helper to setup mock database query that returns empty results"""
+    mock_db.query.return_value.filter.return_value.all.return_value = []
+    return mock_db
+
+
+def _setup_empty_all_query_mock(mock_db):
+    """Helper to setup mock database query.all() that returns empty results"""
+    mock_db.query.return_value.all.return_value = []
+    return mock_db
+
+
+def _setup_popular_recipes_query_mock(mock_db, mock_recipe, like_count=5):
+    """Helper to setup complex query chain for popular recipes"""
+    query_chain = mock_db.query.return_value
+    query_chain.outerjoin.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = [
+        (mock_recipe, like_count)
+    ]
+    return mock_db
+
+
 def test_ai_vs_non_ai_recommendation_comparison():
     """Test that AI recommendations differ from basic filtering"""
     
@@ -54,7 +75,7 @@ def test_ai_fallback_to_popular_recipes():
     mock_db = Mock()
     
     # Mock no liked recipes (new user)
-    mock_db.query.return_value.filter.return_value.all.return_value = []
+    _setup_empty_query_mock(mock_db)
     
     with patch.object(ai_service, '_get_popular_recipes_for_new_users') as mock_popular:
         mock_popular.return_value = [
@@ -95,7 +116,7 @@ def test_ai_recommendation_limitations():
     mock_db = Mock()
     
     # Test with very few recipes (limitation: small dataset)
-    mock_db.query.return_value.all.return_value = []  # No recipes
+    _setup_empty_all_query_mock(mock_db)  # No recipes
     
     result = ai_service.get_ai_recommendations(mock_db, user_id=1, limit=5)
     
@@ -116,9 +137,7 @@ def test_recommendation_type_classification():
     mock_db = Mock()
     mock_recipe = Mock()
     mock_recipe.id = 1
-    mock_db.query.return_value.outerjoin.return_value.group_by.return_value.order_by.return_value.limit.return_value.all.return_value = [
-        (mock_recipe, 5)  # recipe with 5 likes
-    ]
+    _setup_popular_recipes_query_mock(mock_db, mock_recipe, like_count=5)
     
     result = ai_service._get_popular_recipes_for_new_users(mock_db, limit=3)
     
