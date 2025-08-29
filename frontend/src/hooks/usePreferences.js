@@ -59,7 +59,7 @@ export const usePreferences = (user) => {
         max_cooking_time: parseInt(prefs.max_cooking_time),
         dietary_restrictions: prefs.dietary_restrictions,
       };
-    } catch (error) {
+    } catch {
       setStatus("Failed to save your preferences. Please try again.");
       return null;
     } finally {

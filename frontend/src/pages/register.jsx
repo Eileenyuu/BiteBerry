@@ -25,7 +25,7 @@ const Register = ({ onRegister }) => {
     setSuccess("");
 
     try {
-      const response = await registerUser(formData);
+      await registerUser(formData);
       setSuccess("Registration successful! You can now login.");
       setFormData({ username: "", email: "", password: "" });
       if (onRegister) onRegister();
