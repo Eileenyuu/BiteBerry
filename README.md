@@ -46,14 +46,21 @@ A modern recipe recommendation system that helps users discover personalized rec
 
 ### Quick Setup (Recommended)
 
-1. Make scripts executable and run setup:
+1. Clone the repository:
+
+```bash
+git clone https://git.cs.bham.ac.uk/projects-2024-25/axy483.git
+cd BiteBerry
+```
+
+2. Make scripts executable and run setup:
 
 ```bash
 chmod +x setup.sh start.sh
 ./setup.sh
 ```
 
-2. Start both servers:
+3. Start both servers:
 
 ```bash
 ./start.sh
@@ -66,9 +73,16 @@ This will start both the backend (`http://localhost:8000`) and frontend (`http:/
 <details>
 <summary>Click to expand manual setup instructions</summary>
 
+1. Clone the repository:
+
+```bash
+git clone https://git.cs.bham.ac.uk/projects-2024-25/axy483.git
+cd BiteBerry
+```
+
 #### Backend Setup
 
-1. Navigate to the backend directory:
+2. Navigate to the backend directory:
 
 ```bash
 cd backend
@@ -101,19 +115,19 @@ uvicorn main:app --reload
 
 #### Frontend Setup
 
-1. Navigate to the frontend directory:
+7. Navigate to the frontend directory:
 
 ```bash
 cd frontend
 ```
 
-2. Install dependencies:
+8. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Start the development server:
+9. Start the development server:
 
 ```bash
 npm run dev
@@ -126,7 +140,6 @@ npm run dev
 Once the backend is running, you can access:
 
 - **Interactive API docs**: `http://localhost:8000/docs`
-- **Alternative API docs**: `http://localhost:8000/redoc`
 - **Health check**: `http://localhost:8000/health`
 
 ### Key Endpoints
